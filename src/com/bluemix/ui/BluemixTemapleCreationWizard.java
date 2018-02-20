@@ -59,7 +59,7 @@ public class BluemixTemapleCreationWizard extends Wizard implements INewWizard {
 		IRunnableWithProgress op = new IRunnableWithProgress() {
 			public void run(IProgressMonitor monitor) throws InvocationTargetException {
 				try {
-					doFinish(containerName, fileName, selectedTemp,monitor);
+					doFinish(containerName, page.getSelectedNS(),fileName, selectedTemp,monitor);
 				} catch (CoreException e) {
 					throw new InvocationTargetException(e);
 				} finally {
@@ -85,7 +85,7 @@ public class BluemixTemapleCreationWizard extends Wizard implements INewWizard {
 	 * the editor on the newly created file.
 	 */
 
-	private void doFinish(String containerName,String fileName,String selectedTemplate ,IProgressMonitor monitor)
+	private void doFinish(String containerName,String ns,String fileName,String selectedTemplate ,IProgressMonitor monitor)
 		throws CoreException {
 		// create a sample file
 		monitor.beginTask("Creating " + fileName, 2);
@@ -95,7 +95,11 @@ public class BluemixTemapleCreationWizard extends Wizard implements INewWizard {
 			throwCoreException("Container \"" + containerName + "\" does not exist.");
 		}
 		IContainer container = (IContainer) resource;
-		final IFile file = container.getFile(new Path(fileName));
+		IFolder folder = container.getFolder(new Path(ns));
+		if(!folder.exists()){
+			folder.create(0, true, monitor);
+		}
+		final IFile file = container.getFile(new Path(ns+IPath.SEPARATOR+fileName));
 		try {
 			InputStream stream = this.getClass().getResourceAsStream(selectedTemplate+"BoilerPlate.template");
 			if (file.exists()) {

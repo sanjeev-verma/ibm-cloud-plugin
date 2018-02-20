@@ -16,10 +16,15 @@ import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
+import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.dialogs.ContainerSelectionDialog;
+import org.eclipse.ui.dialogs.SelectionDialog;
+
+import bluemix.core.BluemixActivator;
+import bluemix.ui.PreferenceConstants;
 
 /**
  * The "New" wizard page allows setting the container for the new file as well
@@ -35,6 +40,11 @@ public class BluemixTemapleCreationPage extends WizardPage {
 	private ISelection selection;
 
 	protected String selectedTemplate;
+
+	private Combo nsCombo;
+
+	private String selectedNS;
+
 	
 	public static String[] templateType = new String[] {"NodeJS","Python","Java","xyz"};
 
@@ -95,6 +105,21 @@ public class BluemixTemapleCreationPage extends WizardPage {
 				handleBrowse();
 			}
 		});
+		
+		label = new Label(container, SWT.NULL);
+		label.setText("&Select Namespace:");
+
+		nsCombo = new Combo(container, SWT.BORDER | SWT.SINGLE|SWT.READ_ONLY);
+		gd = new GridData(GridData.FILL_HORIZONTAL);
+		gd.horizontalSpan= 2;
+		nsCombo.setLayoutData(gd);
+		String currentNS= BluemixActivator.getDefault().getPreferenceStore().getString(PreferenceConstants.BLUEMIX_NAMESPACES);
+		nsCombo.add(currentNS);
+		nsCombo.select(0);
+		selectedNS = currentNS;
+		
+		// TODO need to add selection litener in order to support multiple namespaces.
+		
 		label = new Label(container, SWT.NULL);
 		label.setText("&File name:");
 
@@ -163,13 +188,13 @@ public class BluemixTemapleCreationPage extends WizardPage {
 	 */
 
 	private void handleBrowse() {
-		ContainerSelectionDialog dialog = new ContainerSelectionDialog(
-				getShell(), ResourcesPlugin.getWorkspace().getRoot(), false,
+		
+		ContainerSelectionDialog dialog = new ContainerSelectionDialog(getShell(), ResourcesPlugin.getWorkspace().getRoot(), false,
 				"Select new file container");
 		if (dialog.open() == ContainerSelectionDialog.OK) {
 			Object[] result = dialog.getResult();
 			if (result.length == 1) {
-				containerText.setText(((Path) result[0]).toString());
+				containerText.setText(((Path) result[0]).segment(0).toString());
 			}
 		}
 	}
@@ -234,5 +259,9 @@ public class BluemixTemapleCreationPage extends WizardPage {
 	
 	public String getSelectedTemplate() {
 		return selectedTemplate;
+	}
+	
+	public String getSelectedNS() {
+		return selectedNS;
 	}
 }

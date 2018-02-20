@@ -1,6 +1,8 @@
 package bluemix.ui;
 
+import org.eclipse.jface.dialogs.InputDialog;
 import org.eclipse.jface.preference.FieldEditorPreferencePage;
+import org.eclipse.jface.preference.ListEditor;
 import org.eclipse.jface.preference.StringFieldEditor;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
@@ -8,6 +10,8 @@ import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.List;
 import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchPreferencePage;
@@ -28,6 +32,7 @@ import bluemix.rest.TestConnection;
 
 public class BluemixPreferencePage extends FieldEditorPreferencePage implements IWorkbenchPreferencePage {
 
+	private StringFieldEditor namespaceEditor;
 	public BluemixPreferencePage() {
 		super(GRID);
 		setPreferenceStore(BluemixActivator.getDefault().getPreferenceStore());
@@ -49,7 +54,42 @@ public class BluemixPreferencePage extends FieldEditorPreferencePage implements 
 				getTextControl().setEchoChar('*');
 			}
 		});
+//		addField(new StringFieldEditor(PreferenceConstants.BLUEMIX_NAMESPACES, "Current &Namespace:", getFieldEditorParent()));
+//		
+//		ListEditor list = new ListEditor(PreferenceConstants.BLUEMIX_AUTH_KEY, "Default NS @API key:",getFieldEditorParent()){
+//
+//			@Override
+//			protected String createList(String[] arg0) {
+//				return arg0[0]+"###"+arg0[1]+"###"+arg0[2];
+//			}
+//
+//			@Override
+//			protected String getNewInputObject() {
+//				InputDialog dlg = new InputDialog(getShell(), "Provide namespace", "Input Data","Namespace" , null);
+//				dlg.open();
+//				if(dlg.getReturnCode() == 0){
+//					return dlg.getValue();
+//				}
+//				
+//				return createList(new String[]{"","",""});
+//			}
+//
+//			@Override
+//			protected String[] parseString(String arg0) {
+//				
+//				return arg0.split("###");
+//			}
+//			
+//			@Override
+//			protected void createControl(Composite parent) {
+//				super.createControl(parent);
+//				
+//			}
+//			
+//		};
+//		
 
+		
 		StringFieldEditor apiKey = new StringFieldEditor(PreferenceConstants.BLUEMIX_AUTH_KEY, "Default NS @API key:",
 				getFieldEditorParent());
 		apiKey.getTextControl(getFieldEditorParent()).setToolTipText(
@@ -58,8 +98,13 @@ public class BluemixPreferencePage extends FieldEditorPreferencePage implements 
 		Button btn = new Button(getFieldEditorParent(), SWT.NONE);
 		btn.setText("&Test Connection");
 		btn.addSelectionListener(getSelectionListener());
+		new Label(getFieldEditorParent(), SWT.NULL);
+		namespaceEditor = new StringFieldEditor(PreferenceConstants.BLUEMIX_NAMESPACES, "Current Namespace(Auto populate on Test Connection):", getFieldEditorParent());
+		namespaceEditor.getTextControl(getFieldEditorParent()).setEnabled(false);;
+		addField(namespaceEditor);
 	}
 
+	
 	private SelectionListener getSelectionListener() {
 		return new SelectionAdapter() {
 
@@ -75,12 +120,14 @@ public class BluemixPreferencePage extends FieldEditorPreferencePage implements 
 					 dialog.setText("Success");
 					 dialog.setMessage("Connected successfully!");
 					 dialog.open();
+					 namespaceEditor.load();
 				}
 				}catch(RuntimeException ex){
 					 MessageBox dialog =new MessageBox(getShell(),SWT.ICON_ERROR| SWT.OK);
 					 dialog.setText("Connection Failed");
 					 dialog.setMessage("Connection failed: "+ex.getMessage());
 					 dialog.open();
+					 
 
 					
 				}
@@ -89,6 +136,11 @@ public class BluemixPreferencePage extends FieldEditorPreferencePage implements 
 		};
 	}
 
+	@Override
+	protected void performApply() {
+		super.performApply();
+		
+	}
 	/*
 	 * (non-Javadoc)
 	 * 

@@ -12,6 +12,8 @@ public class PreferenceConstants {
 	public static final String BLUEMIX_PASSWORD = "BLUEMIX_PAASWORD";
 	
 	public static final String BLUEMIX_AUTH_KEY = "BLUEMIX_AUTH_KEY";
+	
+	public static final String BLUEMIX_NAMESPACES = "BLUEMIX_NAMESPACES";
 
 	public static final String P_BOOLEAN = "booleanPreference";
 
