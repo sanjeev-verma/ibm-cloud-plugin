@@ -30,12 +30,20 @@
             </separator>
          </menu>
          <action
-               label="Create"
-               class="bluemix.rest.CreateAction"
-               menubarPath="bluemix.menu1/group1"
-               enablesFor="multiple"
-               id="bluemix.newAction">
+               class="bluemix.rest.UpdateAction"
+               enablesFor="?"
+               id="bluemix.updateAction"
+               label="Update"
+               menubarPath="bluemix.menu1/group1">
          </action>
+         <action
+               class="bluemix.rest.CreateAction"
+               enablesFor="?"
+               id="bluemix.newAction"
+               label="Create"
+               menubarPath="bluemix.menu1/group1">
+         </action>
+         
       </objectContribution>
    </extension>
    <extension
@@ -52,5 +60,6 @@
             class="bluemix.ui.PreferenceInitializer">
       </initializer>
    </extension>
+   
 
 </plugin>

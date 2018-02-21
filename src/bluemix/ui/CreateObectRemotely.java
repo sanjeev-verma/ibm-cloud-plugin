@@ -39,6 +39,7 @@ public class CreateObectRemotely implements IObjectActionDelegate {
 	 * @see IActionDelegate#selectionChanged(IAction, ISelection)
 	 */
 	public void selectionChanged(IAction action, ISelection selection) {
+		System.out.println(action);
 	}
 
 }
