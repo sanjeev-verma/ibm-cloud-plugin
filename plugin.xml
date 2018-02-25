@@ -51,8 +51,31 @@
                menubarPath="bluemix.menu1/group1">
          </action>
          
+         
       </objectContribution>
+      
+      <objectContribution objectClass="bluemix.ui.model.UINamespace"
+            id="bluemix.UINamespace">
+         <action
+               class="bluemix.rest.RefreshAction"
+               enablesFor="?"
+               id="bluemix.refreshAction"
+               label="Refresh"
+               menubarPath="additions">
+         </action>
+        </objectContribution>
+        <objectContribution objectClass="bluemix.ui.model.UIAction"
+            id="bluemix.UIAction">
+		<action
+               class="bluemix.rest.DeleteAction"
+               enablesFor="?"
+               id="bluemix.deleteAction"
+               label="Delete"
+               menubarPath="additions">
+         </action>
+         </objectContribution>
    </extension>
+   
    <extension
          point="org.eclipse.ui.preferencePages">
       <page
