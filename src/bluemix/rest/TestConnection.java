@@ -24,7 +24,7 @@ public class TestConnection extends RestBase {
 			throw new RuntimeException("Server name is empty.");
 		}
 		HttpGet request = new HttpGet("https://" + info.getServer() + "/api/v1/namespaces");
-		updateAuthHeader(auth, request);
+		updateAuthHeader(request);
 
 		HttpClient client = HttpClientBuilder.create().build();
 		HttpResponse response;

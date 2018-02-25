@@ -5,11 +5,11 @@
    <extension
          point="org.eclipse.ui.newWizards">
       <category
-            name="Bluemix Template Creation"
+            name="IBM Cloud functions"
             id="bluemix">
       </category>
       <wizard
-            name="Bluemix Template Creation "
+            name="Template creation"
             icon="icons/sample.gif"
             category="bluemix"
             class="com.bluemix.ui.BluemixTemapleCreationWizard"
@@ -22,13 +22,20 @@
             objectClass="org.eclipse.core.resources.IFile"
             id="bluemix.contribution1">
          <menu
-               label="Bluemix Actions"
+               label="IBM Cloud Functions"
                path="additions"
                id="bluemix.menu1">
             <separator
                   name="group1">
             </separator>
          </menu>
+         <action
+               class="bluemix.rest.InvokeAction"
+               enablesFor="?"
+               id="bluemix.invokeAction"
+               label="Invoke"
+               menubarPath="bluemix.menu1/group1">
+         </action>
          <action
                class="bluemix.rest.UpdateAction"
                enablesFor="?"
@@ -59,6 +66,26 @@
       <initializer
             class="bluemix.ui.PreferenceInitializer">
       </initializer>
+   </extension>
+   <extension
+         point="org.eclipse.ui.views">
+      <category
+            id="bluemix.ui.ServerView"
+            name="IBM Category">
+      </category>
+      <view
+            category="bluemix.ui.ServerView"
+            class="bluemix.ui.ServerView"
+            icon="icons/sample.gif"
+            id="bluemix.ui.ServerView"
+            name="IBM Functions Server">
+      </view>
+   </extension>
+   <extension
+         point="org.eclipse.help.contexts">
+      <contexts
+            file="contexts.xml">
+      </contexts>
    </extension>
    
 

@@ -12,7 +12,6 @@ public class Action {
 	private String namespace;
 	private String name;
 	private Exec exec;
-	
 	public String getNamespace() {
 		return namespace;
 	}

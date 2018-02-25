@@ -4,6 +4,7 @@ import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.Path;
+import org.eclipse.jface.dialogs.IDialogPage;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.wizard.WizardPage;
@@ -21,7 +22,6 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.dialogs.ContainerSelectionDialog;
-import org.eclipse.ui.dialogs.SelectionDialog;
 
 import bluemix.core.BluemixActivator;
 import bluemix.ui.PreferenceConstants;
@@ -54,9 +54,9 @@ public class BluemixTemapleCreationPage extends WizardPage {
 	 * @param pageName
 	 */
 	public BluemixTemapleCreationPage(ISelection selection) {
-		super("Bluemix Action");
-		setTitle("Bluemix Action creation template");
-		setDescription("This wizard creates Bluemix action on the basis of selection type.");
+		super("IBM Cloud Functions ");
+		setTitle("IBM Cloud Function temapltes");
+		setDescription("This wizard creates IBM Cloud functions on the basis of selection type.");
 		this.selection = selection;
 	}
 
