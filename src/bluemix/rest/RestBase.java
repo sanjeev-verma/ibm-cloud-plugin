@@ -21,8 +21,10 @@ public abstract class RestBase{
 
 	protected void updateAuthHeader( HttpRequestBase request) {
 		String auth = getPreferenceStore().getString(PreferenceConstants.BLUEMIX_AUTH_KEY);
+		System.out.println("Auth: "+auth);
 		byte[] encodedAuth = Base64.getEncoder().encode(auth.getBytes(Charset.forName("ISO-8859-1")));
 		String authHeader = "Basic " + new String(encodedAuth);
+		
 		request.setHeader(HttpHeaders.AUTHORIZATION, authHeader);
 	}
 	

@@ -34,6 +34,8 @@ public class DeleteAction extends BaseAction {
 			System.out.println("URL  "+url);
 			HttpDelete request = new HttpDelete(url);
 
+			
+			System.out.println(uiAction.getParent().getApiKey());
 			byte[] encodedAuth = Base64.getEncoder().encode(uiAction.getParent().getApiKey().getBytes(Charset.forName("ISO-8859-1")));
 			String authHeader = "Basic " + new String(encodedAuth);
 			request.setHeader(HttpHeaders.AUTHORIZATION, authHeader);

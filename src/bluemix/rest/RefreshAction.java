@@ -18,7 +18,6 @@ public class RefreshAction extends BaseAction {
 
 	public void run(IAction arg0) {
 			ListAction list = new ListAction();
-			
 			List<bluemix.rest.model.Action> performGetList = list.performGetList(namespace.getApiKey());
 			namespace.getActions().clear();
 			List<UIAction> uiActions = new ArrayList<>();
@@ -30,11 +29,16 @@ public class RefreshAction extends BaseAction {
 			}
 			namespace.setActions(uiActions);
 			ServerView serverView = (ServerView) PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage().findView(ServerView.ID);
-			
 			serverView.getViewer().refresh(namespace);
 			serverView.getViewer().expandAll();
-		
+			
 	
+	}
+	public UINamespace getNamespace() {
+		return namespace;
+	}
+	public void setNamespace(UINamespace namespace) {
+		this.namespace = namespace;
 	}
 	
 	public void selectionChanged(IAction action, ISelection selection) {

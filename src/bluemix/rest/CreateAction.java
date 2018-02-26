@@ -48,7 +48,7 @@ public class CreateAction extends BaseAction {
 		Action act = new Action();
 		act.setName(name);
 		
-//		act.setNamespace("_");// current namespace
+		act.setNamespace("_");// current namespace
 		Exec exec = new Exec();
 		String code;
 		try {

@@ -1,13 +1,14 @@
 package bluemix.ui;
 
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.IMenuListener;
 import org.eclipse.jface.action.IMenuManager;
 import org.eclipse.jface.action.MenuManager;
 import org.eclipse.jface.action.Separator;
-import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.viewers.ITreeContentProvider;
 import org.eclipse.jface.viewers.LabelProvider;
 import org.eclipse.jface.viewers.TreeViewer;
@@ -21,6 +22,7 @@ import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.part.DrillDownAdapter;
 import org.eclipse.ui.part.ViewPart;
 
+import bluemix.rest.ListAction;
 import bluemix.ui.model.IBMFunctionsProject;
 import bluemix.ui.model.UIAction;
 import bluemix.ui.model.UINamespace;
@@ -69,7 +71,23 @@ public class ServerView extends ViewPart {
 				return ((IBMFunctionsProject) parent).getNamespaces().toArray();
 			}
 			if (parent instanceof UINamespace) {
-				return ((UINamespace) parent).getActions().toArray();
+				UINamespace namespace = (UINamespace) parent;
+				Object[] objs = namespace.getActions().toArray();
+				if(objs ==null || objs.length<=0){
+					ListAction list = new ListAction();
+					List<bluemix.rest.model.Action> performGetList = list.performGetList(namespace.getApiKey());
+					namespace.getActions().clear();
+					List<UIAction> uiActions = new ArrayList<>();
+					for (bluemix.rest.model.Action action : performGetList) {
+						UIAction uiAct = new UIAction();
+						uiAct.setParent(namespace);
+						uiAct.setAction(action);
+						uiActions.add(uiAct);
+					}
+					namespace.setActions(uiActions);
+					return uiActions.toArray();
+				}
+				return objs;
 			}
 
 			return null;
@@ -78,6 +96,8 @@ public class ServerView extends ViewPart {
 		public boolean hasChildren(Object parent) {
 			return true;
 		}
+		
+	
 
 	}
 
@@ -129,7 +149,8 @@ public class ServerView extends ViewPart {
 		viewer.setContentProvider(new ViewContentProvider());
 		viewer.setInput("ROOT");
 		viewer.setLabelProvider(new ViewLabelProvider());
-
+		
+		
 		// Create the help context id for the viewer's control
 		PlatformUI.getWorkbench().getHelpSystem().setHelp(viewer.getControl(), "bluemix.viewer");
 		getSite().setSelectionProvider(viewer);
@@ -153,72 +174,6 @@ public class ServerView extends ViewPart {
 		getSite().registerContextMenu(menuMgr, viewer);
 	}
 
-//	private void contributeToActionBars() {
-//		IActionBars bars = getViewSite().getActionBars();
-//		fillLocalPullDown(bars.getMenuManager());
-//		fillLocalToolBar(bars.getToolBarManager());
-//	}
-
-//	private void fillLocalPullDown(IMenuManager manager) {
-//		manager.add(action1);
-//		manager.add(new Separator());
-//		manager.add(action2);
-//	}
-
-//	private void fillContextMenu(IMenuManager manager) {
-//		manager.add(action1);
-//		manager.add(action2);
-//		manager.add(new Separator());
-//		drillDownAdapter.addNavigationActions(manager);
-		// Other plug-ins can contribute there actions here
-//		manager.add(new Separator(IWorkbenchActionConstants.MB_ADDITIONS));
-	//}
-//
-//	private void fillLocalToolBar(IToolBarManager manager) {
-//		manager.add(action1);
-//		manager.add(action2);
-//		manager.add(new Separator());
-//		drillDownAdapter.addNavigationActions(manager);
-//	}
-
-	private void makeActions() {
-		action1 = new Action() {
-			public void run() {}
-		};
-		action1.setText("Refresh");
-		action1.setToolTipText("Action 1 tooltip");
-		action1.setImageDescriptor(
-				PlatformUI.getWorkbench().getSharedImages().getImageDescriptor(ISharedImages.IMG_ELCL_SYNCED));
-
-		action2 = new Action() {
-			public void run() {
-				showMessage("Action 2 executed");
-			}
-		};
-		action2.setText("Action 2");
-		action2.setToolTipText("Action 2 tooltip");
-		action2.setImageDescriptor(
-				PlatformUI.getWorkbench().getSharedImages().getImageDescriptor(ISharedImages.IMG_ELCL_REMOVE));
-//		doubleClickAction = new Action() {
-//			public void run() {
-//				ISelection selection = viewer.getSelection();
-//				Object obj = ((IStructuredSelection) selection).getFirstElement();
-//				showMessage("Double-click detected on " + obj.toString());
-//			}
-//		};
-	}
-
-//	private void hookDoubleClickAction() {
-//		viewer.addDoubleClickListener(new IDoubleClickListener() {
-//			public void doubleClick(DoubleClickEvent event) {
-//				doubleClickAction.run();
-//			}
-//		});
-//	}
-
-	private void showMessage(String message) {
-		MessageDialog.openInformation(viewer.getControl().getShell(), "IBM Functions Server", message);
-	}
 
 	/**
 	 * Passing the focus request to the viewer's control.
