@@ -237,27 +237,19 @@ public class EventDetailsDialog extends TrayDialog {
 			copyPressed();
 	}
 
-	protected void backPressed() {/*
-		if (childIndex > 0) {
-			if (isLastChild && (isChild(entry))) {
-				setEntryChildren(parentEntry);
-				isLastChild = false;
-			}
-			childIndex--;
-			entry = entryChildren[childIndex];
-		} else {
-			if (parentEntry instanceof LogEntry) {
-				entry = parentEntry;
-				if (isChild(entry)) {
-					setEntryChildren((AbstractEntry) entry.getParent(entry));
-				} else {
-					setEntryChildren();
-				}
-				resetChildIndex();
-			}
-		}
+	protected void backPressed() {
+		List<Activation> children = entry.getAction().getActivations();
+		int indx = children.indexOf(entry);
+		if(indx <= 0){
+			//moveParent();
+		}else{
+			entry = children.get(indx-1);
+		}	
+		updateProperties();
+
 		setEntrySelectionInTable();
-	*/}
+		
+	}
 
 	protected void nextPressed() {
 		List<Activation> children = entry.getAction().getActivations();
@@ -268,18 +260,7 @@ public class EventDetailsDialog extends TrayDialog {
 			entry = children.get(indx+1);
 		}
 		updateProperties();
-//		if (childIndex < entryChildren.length - 1) {
-//			childIndex++;
-//			entry = entryChildren[childIndex];
-//			isLastChild = childIndex == entryChildren.length - 1;
-//		} else if (isChild(entry) && isLastChild && !isAtEndOfLog) {
-//			findNextSelectedChild(entry);
-//		} else { // at end of list but can branch into child elements - bug 58083
-//			setEntryChildren(entry);
-//			entry = entryChildren[0];
-//			isAtEndOfLog = entryChildren.length == 0;
-//			isLastChild = entryChildren.length == 0;
-//		}
+
 		setEntrySelectionInTable();
 	}
 
