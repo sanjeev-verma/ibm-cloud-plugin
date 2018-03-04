@@ -117,22 +117,22 @@ public class InvokeAction extends BaseAction {
 		String fullName = file.getName();
 		String name = fullName.substring(0, fullName.indexOf('.'));
 		String value = dlg.getValue();
-		JsonObject jsn = new JsonObject();
-		jsn.addProperty("key", value);
+//		JsonObject jsn = new JsonObject();
+//		jsn.addProperty("key", value);
 //		name="test-weather";
 		String url = getBaseURL()+"namespaces/_/actions/"+name+"?blocking="+isBlockin+"&result="+result;
 		System.out.println("URL  "+url);
 		HttpPost request = new HttpPost(url);
 		updateAuthHeader(request);
 		request.setHeader(HttpHeaders.CONTENT_TYPE, "application/json");
-		System.out.println("payload:"+ jsn);
-		request.setEntity(new StringEntity(jsn.toString(), "utf-8"));
+		System.out.println("payload:"+ value);
+		request.setEntity(new StringEntity(value, "utf-8"));
 		
 		
 			HttpResponse response = httpCall(request);
 			String json = EntityUtils.toString(response.getEntity());
 			System.out.println("Output "+json);
-			MessageBox dialog =new MessageBox(shell,SWT.ICON_INFORMATION| SWT.OK);
+			MessageBox dialog =new MessageBox(shell,SWT.ICON_INFORMATION | SWT.OK);
 			dialog.setText("Success");
 			dialog.setMessage("Response JSON:"+ json);
 			dialog.open();

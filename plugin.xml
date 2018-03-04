@@ -92,16 +92,34 @@
    </extension>
    <extension
          point="org.eclipse.ui.views">
-      <category
-            id="bluemix.ui.ServerView"
-            name="IBM Category">
-      </category>
       <view
-            category="bluemix.ui.ServerView"
+            category="IBMCloudFunctions"
             class="bluemix.ui.ServerView"
             icon="icons/sample.gif"
             id="bluemix.ui.ServerView"
-            name="IBM Functions Server">
+            name="IBM Cloud Functions Server">
+      </view>
+      <category
+            id="IBMCloudFunctions"
+            name="IBM Cloud Functions">
+      </category>
+      <view
+            category="IBMCloudFunctions"
+            class="bluemix.ui.ActivityView"
+            icon="icons/sample.gif"
+            id="bluemix.ui.ActivityView"
+            name="IBM Cloud Functions Activity View">
+      </view>
+      <category
+            id="bluemix"
+            name="Sample Category">
+      </category>
+      <view
+            category="bluemix"
+            class="bluemix.views.SampleView"
+            icon="icons/sample.gif"
+            id="bluemix.views.SampleView"
+            name="Sample View">
       </view>
    </extension>
    <extension
@@ -109,6 +127,33 @@
       <contexts
             file="contexts.xml">
       </contexts>
+      <contexts
+            file="contexts.xml">
+      </contexts>
+      <contexts
+            file="contexts.xml">
+      </contexts>
+   </extension>
+   <extension
+         point="org.eclipse.ui.perspectiveExtensions">
+      <perspectiveExtension
+            targetID="org.eclipse.jdt.ui.JavaPerspective">
+         <view
+               id="bluemix.ui.ActivityView"
+               ratio="0.5"
+               relationship="right"
+               relative="org.eclipse.ui.views.ProblemView">
+         </view>
+      </perspectiveExtension>
+      <perspectiveExtension
+            targetID="org.eclipse.jdt.ui.JavaPerspective">
+         <view
+               id="bluemix.views.SampleView"
+               ratio="0.5"
+               relationship="right"
+               relative="org.eclipse.ui.views.ProblemView">
+         </view>
+      </perspectiveExtension>
    </extension>
    
 
