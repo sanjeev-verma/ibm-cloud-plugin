@@ -147,28 +147,28 @@ public class ActivityView extends ViewPart{
 	      TreeColumn column1 = new TreeColumn(addressTree, SWT.LEFT);
 	      addressTree.setLinesVisible(true);
 	      column1.setAlignment(SWT.LEFT);
-	      column1.setText("1");
-	      column1.setWidth(50);
+	      column1.setText("Activation ID");
+	      column1.setWidth(80);
 	      
 	      TreeColumn column2 = new TreeColumn(addressTree, SWT.RIGHT);
 	      column2.setAlignment(SWT.LEFT);
-	      column2.setText("2");
-	      column2.setWidth(50);
+	      column2.setText("Start At");
+	      column2.setWidth(80);
 	      
 	      TreeColumn column3 = new TreeColumn(addressTree, SWT.RIGHT);
 	      column3.setAlignment(SWT.LEFT);
-	      column3.setText("3");
-	      column3.setWidth(20);
+	      column3.setText("Duration");
+	      column3.setWidth(40);
 	 
 	      TreeColumn column4 = new TreeColumn(addressTree, SWT.RIGHT);
 	      column4.setAlignment(SWT.LEFT);
 	      column4.setText("Response");
-	      column4.setWidth(100);
+	      column4.setWidth(120);
 	 
 	      TreeColumn column5 = new TreeColumn(addressTree, SWT.RIGHT);
 	      column5.setAlignment(SWT.LEFT);
 	      column5.setText("Logs");
-	      column5.setWidth(100);
+	      column5.setWidth(120);
 	 
 	      
 	      m_treeViewer.setContentProvider(new AddressContentProvider());
