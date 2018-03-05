@@ -55,7 +55,7 @@ public class ActivityView extends ViewPart{
 	
 	private DrillDownAdapter drillDownAdapter;
 	private org.eclipse.jface.action.Action action1;
-	private org.eclipse.jface.action.Action action2;
+//	private org.eclipse.jface.action.Action action2;
 	private org.eclipse.jface.action.Action doubleClickAction;
 
 	 
@@ -102,11 +102,11 @@ public class ActivityView extends ViewPart{
 	    		  name =  ISharedImages.IMG_OBJ_ELEMENT;
 	    	  }else if(obj instanceof Activation ){
 	    		  Activation ac = (Activation)obj;
-	    		  if(ac.getStatusCode() == 0){
+	    		  if(ac.getResponse().isSuccess()){
 	    			  name = ISharedImages.IMG_OBJS_INFO_TSK;
-	    		  }else if(ac.getStatusCode() == 1){
+	    		  }/*else if(ac.getStatusCode() == 1){
 	    			  name = ISharedImages.IMG_OBJS_WARN_TSK;
-	    		  }else if(ac.getStatusCode() == 2){
+	    		  }*/else {
 	    			  name = ISharedImages.IMG_OBJS_ERROR_TSK;
 	    		  }
 	    	  }
@@ -139,7 +139,7 @@ public class ActivityView extends ViewPart{
 	   }
 	 
 	   public void createPartControl(Composite parent){
-	      Tree addressTree = new Tree(parent, SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL);
+	      Tree addressTree = new Tree(parent, SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL | SWT.FULL_SELECTION);
 			addressTree.setHeaderVisible(true);
 	      m_treeViewer = new TreeViewer(addressTree);
 	      drillDownAdapter = new DrillDownAdapter(m_treeViewer);
@@ -148,7 +148,7 @@ public class ActivityView extends ViewPart{
 	      addressTree.setLinesVisible(true);
 	      column1.setAlignment(SWT.LEFT);
 	      column1.setText("Activation ID");
-	      column1.setWidth(80);
+	      column1.setWidth(100);
 	      
 	      TreeColumn column2 = new TreeColumn(addressTree, SWT.RIGHT);
 	      column2.setAlignment(SWT.LEFT);
@@ -158,30 +158,25 @@ public class ActivityView extends ViewPart{
 	      TreeColumn column3 = new TreeColumn(addressTree, SWT.RIGHT);
 	      column3.setAlignment(SWT.LEFT);
 	      column3.setText("Duration");
-	      column3.setWidth(40);
+	      column3.setWidth(70);
 	 
 	      TreeColumn column4 = new TreeColumn(addressTree, SWT.RIGHT);
 	      column4.setAlignment(SWT.LEFT);
 	      column4.setText("Response");
-	      column4.setWidth(120);
+	      column4.setWidth(150);
 	 
 	      TreeColumn column5 = new TreeColumn(addressTree, SWT.RIGHT);
 	      column5.setAlignment(SWT.LEFT);
 	      column5.setText("Logs");
-	      column5.setWidth(120);
+	      column5.setWidth(150);
 	 
 	      
-	      m_treeViewer.setContentProvider(new AddressContentProvider());
+	      m_treeViewer.setContentProvider(new ContentProvider());
 	      m_treeViewer.setLabelProvider(new ViewLabelProvider());
 			makeActions();
 			hookContextMenu();
 			hookDoubleClickAction();
 			contributeToActionBars();
-
-//	      List<City> cities = new ArrayList<City>();
-//	      cities.add(new City());
-//	      m_treeViewer.setInput(cities);
-//	      m_treeViewer.expandAll();
 	   }
 	   
 	   
@@ -198,7 +193,7 @@ public class ActivityView extends ViewPart{
 	 
 	   
 	   
-	   class AddressContentProvider implements ITreeContentProvider{
+	   class ContentProvider implements ITreeContentProvider{
 	      public Object[] getChildren(Object parentElement){
 	         if (currentNs.equals(parentElement)){
 	        	 List<Action> actions = new ArrayList<>();
@@ -261,12 +256,12 @@ public class ActivityView extends ViewPart{
 		private void fillLocalPullDown(IMenuManager manager) {
 			manager.add(action1);
 			manager.add(new Separator());
-			manager.add(action2);
+//			manager.add(action2);
 		}
 
 		private void fillContextMenu(IMenuManager manager) {
 			manager.add(action1);
-			manager.add(action2);
+//			manager.add(action2);
 			manager.add(new Separator());
 			drillDownAdapter.addNavigationActions(manager);
 			// Other plug-ins can contribute there actions here
@@ -275,7 +270,7 @@ public class ActivityView extends ViewPart{
 		
 		private void fillLocalToolBar(IToolBarManager manager) {
 			manager.add(action1);
-			manager.add(action2);
+//			manager.add(action2);
 			manager.add(new Separator());
 			drillDownAdapter.addNavigationActions(manager);
 		}
@@ -287,29 +282,28 @@ public class ActivityView extends ViewPart{
 					ActivityView.this.refreshView();
 				}
 			};
-			action1.setText("Action 1");
-			action1.setToolTipText("Action 1 tooltip");
+			action1.setText("Get All activations");
+			action1.setToolTipText("Get All activations");
 			action1.setImageDescriptor(PlatformUI.getWorkbench().getSharedImages().
 				getImageDescriptor(ISharedImages.IMG_OBJS_INFO_TSK));
-			
-			action2 = new org.eclipse.jface.action.Action() {
-				public void run() {
-					showMessage("Action 2 executed");
-				}
-			};
-			action2.setText("Action 2");
-			action2.setToolTipText("Action 2 tooltip");
-			action2.setImageDescriptor(PlatformUI.getWorkbench().getSharedImages().
-					getImageDescriptor(ISharedImages.IMG_OBJS_INFO_TSK));
+//			
+//			action2 = new org.eclipse.jface.action.Action() {
+//				public void run() {
+//					showMessage("Action 2 executed");
+//				}
+//			};
+//			action2.setText("Action 2");
+//			action2.setToolTipText("Action 2 tooltip");
+//			action2.setImageDescriptor(PlatformUI.getWorkbench().getSharedImages().
+//					getImageDescriptor(ISharedImages.IMG_OBJS_INFO_TSK));
 			doubleClickAction = new org.eclipse.jface.action.Action() {
 				public void run() {
 					ISelection selection = m_treeViewer.getSelection();
 					Object obj = ((IStructuredSelection)selection).getFirstElement();
-					
-					EventDetailsDialog dlg = new EventDetailsDialog(getViewSite().getShell(), ActivityView.this,
-							((IStructuredSelection)selection),((ISelectionProvider)m_treeViewer), null);
+					if(obj instanceof Activation){
+					EventDetailsDialog dlg = new EventDetailsDialog(getViewSite().getShell(), ActivityView.this,((IStructuredSelection)selection),((ISelectionProvider)m_treeViewer));
 					dlg.open();
-//					showMessage("Double-click detected on "+obj.toString());
+					}
 				}
 			};
 		}
@@ -322,10 +316,7 @@ public class ActivityView extends ViewPart{
 			});
 		}
 		private void showMessage(String message) {
-			MessageDialog.openInformation(
-				m_treeViewer.getControl().getShell(),
-				"Sample View",
-				message);
+			MessageDialog.openInformation(m_treeViewer.getControl().getShell(),"Fetch Activations","It will take a while to fetch activations from server");
 		}
 
 

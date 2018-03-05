@@ -2,12 +2,11 @@ package bluemix.ui;
 
 import java.text.Collator;
 import java.text.SimpleDateFormat;
-import java.util.Comparator;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
-import java.util.StringTokenizer;
 
-import org.eclipse.core.runtime.IAdaptable;
 import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.jface.dialogs.IDialogConstants;
 import org.eclipse.jface.dialogs.TrayDialog;
@@ -15,11 +14,10 @@ import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.ISelectionProvider;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.viewers.ITableLabelProvider;
+import org.eclipse.jface.viewers.ITreeContentProvider;
 import org.eclipse.jface.viewers.StructuredSelection;
 import org.eclipse.jface.viewers.TreeViewer;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.accessibility.AccessibleAdapter;
-import org.eclipse.swt.accessibility.AccessibleEvent;
 import org.eclipse.swt.custom.SashForm;
 import org.eclipse.swt.dnd.Clipboard;
 import org.eclipse.swt.dnd.TextTransfer;
@@ -42,6 +40,7 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
+import bluemix.rest.model.Action;
 import bluemix.rest.model.Activation;
 
 /**
@@ -83,13 +82,7 @@ public class EventDetailsDialog extends TrayDialog {
 	private Button backButton;
 	private Button nextButton;
 	private SashForm sashForm;
-
-	// sorting
-	private Comparator comparator = null;
 	Collator collator;
-
-	// patterns for filtering stack traces
-	private String[] stackFilterPatterns = null;
 
 	// location configuration
 	private Point dialogLocation;
@@ -98,7 +91,6 @@ public class EventDetailsDialog extends TrayDialog {
 	private Label activationLabel;
 //	private Action parentEntry;
 
-//	private DateFormat dateFormat = DateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.SHORT);
 
 	/**
 	 *
@@ -107,23 +99,18 @@ public class EventDetailsDialog extends TrayDialog {
 	 * @param provider viewer
 	 * @param comparator comparator used to order all entries
 	 */
-	protected EventDetailsDialog(Shell parentShell, ActivityView logView, IStructuredSelection selection, ISelectionProvider provider, Comparator comparator) {
+	protected EventDetailsDialog(Shell parentShell, ActivityView logView, IStructuredSelection selection, ISelectionProvider provider) {
 		super(parentShell);
 		
 		this.logView = logView;
 		this.provider = (TreeViewer) provider;
 		labelProvider = (ITableLabelProvider) this.provider.getLabelProvider();
-//		labelProvider.connect(this);
 		this.entry = (Activation) selection.getFirstElement();
-		this.comparator = comparator;
 		setShellStyle(SWT.MODELESS | SWT.MIN | SWT.MAX | SWT.RESIZE | SWT.CLOSE | SWT.BORDER | SWT.TITLE);
 		clipboard = new Clipboard(parentShell.getDisplay());
-		initialize();
 		collator = Collator.getInstance();
-//		readConfiguration();
 		isLastChild = false;
 		isAtEndOfLog = false;
-//		stackFilterPatterns = getFilters();
 	}
 
 	/*
@@ -134,42 +121,7 @@ public class EventDetailsDialog extends TrayDialog {
 		super.configureShell(newShell);
 	}
 
-	private void initialize() {
-//		parentEntry = (Action) entry.getAction();
-//		if (isChild(entry)) {
-//			setEntryChildren(parentEntry);
-//		} else {
-//			setEntryChildren();
-//		}
-		resetChildIndex();
-		isLastChild = false;
-		isAtEndOfLog = false;
-	}
 
-	private void resetChildIndex() {/*
-		if (entryChildren == null)
-			return;
-
-		LogEntry thisEntry = (LogEntry) entry;
-
-		for (int i = 0; i < entryChildren.length; i++) {
-			if (entryChildren[i] instanceof LogEntry) {
-
-				LogEntry logEntry = (LogEntry) entryChildren[i];
-
-				if (logEntry == thisEntry) {
-					childIndex = i;
-					return;
-				}
-			}
-		}
-
-		childIndex = 0;
-	*/}
-
-//	private boolean isChild(Action entry) {
-//		return entry.getParent(entry) != null;
-//	}
 
 	public boolean isOpen() {
 		return isOpen;
@@ -241,6 +193,19 @@ public class EventDetailsDialog extends TrayDialog {
 		List<Activation> children = entry.getAction().getActivations();
 		int indx = children.indexOf(entry);
 		if(indx <= 0){
+			ITreeContentProvider contentProvider = (ITreeContentProvider)provider.getContentProvider();
+			Action action = (Action) contentProvider.getParent(entry);
+			Object obj = contentProvider.getParent(action);
+			Object[] allParents = contentProvider.getChildren(obj);
+			int parentIndx = Arrays.asList(allParents).indexOf(action);
+			if(parentIndx <= 0){
+				return;
+				//do nothing
+			}else{
+				provider.expandAll();
+				Object previousChildren[] = contentProvider.getChildren(allParents[parentIndx-1]);
+				entry = (Activation) previousChildren[previousChildren.length-1]; 
+			}
 			//moveParent();
 		}else{
 			entry = children.get(indx-1);
@@ -254,13 +219,25 @@ public class EventDetailsDialog extends TrayDialog {
 	protected void nextPressed() {
 		List<Activation> children = entry.getAction().getActivations();
 		int indx = children.indexOf(entry);
-		if(indx >= children.size()){
+		if(indx >= children.size()-1){
+			ITreeContentProvider contentProvider = (ITreeContentProvider)provider.getContentProvider();
+			Action action = (Action) contentProvider.getParent(entry);
+			Object obj = contentProvider.getParent(action);
+			Object[] allParents = contentProvider.getChildren(obj);
+			int parentIndx = Arrays.asList(allParents).indexOf(action);
+			if(parentIndx >= allParents.length -1 ){
+				return;
+				//do nothing
+			}else{
+				provider.expandAll();
+				Object previousChildren[] = contentProvider.getChildren(allParents[parentIndx+1]);
+				entry = (Activation) previousChildren[0]; 
+			}
 			
 		}else{
 			entry = children.get(indx+1);
 		}
 		updateProperties();
-
 		setEntrySelectionInTable();
 	}
 
@@ -270,60 +247,8 @@ public class EventDetailsDialog extends TrayDialog {
 		clipboard.setContents(new Object[] {textVersion}, new Transfer[] {TextTransfer.getInstance()});
 	}
 
-	public void setComparator(Comparator comparator) {
-		this.comparator = comparator;
-		updateProperties();
-	}
 
-	private void setComparator(byte sortType, final int sortOrder) {/*
-		if (sortType == LogView.DATE) {
-			comparator = new Comparator() {
-				@Override
-				public int compare(Object e1, Object e2) {
-					Date date1 = ((LogEntry) e1).getDate();
-					Date date2 = ((LogEntry) e2).getDate();
-					if (sortOrder == LogView.ASCENDING)
-						return date1.getTime() < date2.getTime() ? LogView.DESCENDING : LogView.ASCENDING;
-					return date1.getTime() > date2.getTime() ? LogView.DESCENDING : LogView.ASCENDING;
-				}
-			};
-		} else if (sortType == LogView.PLUGIN) {
-			comparator = new Comparator() {
-				@Override
-				public int compare(Object e1, Object e2) {
-					LogEntry entry1 = (LogEntry) e1;
-					LogEntry entry2 = (LogEntry) e2;
-					return collator.compare(entry1.getPluginId(), entry2.getPluginId()) * sortOrder;
-				}
-			};
-		} else {
-			comparator = new Comparator() {
-				@Override
-				public int compare(Object e1, Object e2) {
-					LogEntry entry1 = (LogEntry) e1;
-					LogEntry entry2 = (LogEntry) e2;
-					return collator.compare(entry1.getMessage(), entry2.getMessage()) * sortOrder;
-				}
-			};
-		}
-	*/}
 
-	public void resetSelection(IAdaptable selectedEntry, byte sortType, int sortOrder) {
-		setComparator(sortType, sortOrder);
-		resetSelection(selectedEntry);
-	}
-
-	public void resetSelection(IAdaptable selectedEntry) {/*
-		if (entry.equals(selectedEntry)) {
-			updateProperties();
-			return;
-		}
-		if (selectedEntry instanceof AbstractEntry) {
-			entry = (AbstractEntry) selectedEntry;
-			initialize();
-			updateProperties();
-		}
-	*/}
 
 	public void resetButtons() {
 		backButton.setEnabled(false);
@@ -360,22 +285,19 @@ public class EventDetailsDialog extends TrayDialog {
 			}
 			 //$NON-NLS-1$
 			StringBuilder stack = new StringBuilder();
-			
 			for (String log : entry.getLogs()) {
+				try{
 				JsonObject json = parser.parse(log).getAsJsonObject();
 				stack.append("\n"+gson.toJson(json));
+				}catch(Exception ex){
+					stack.append("\n"+log);
+				}
 			}
 
 			if (stack != null) {
 				stackTraceText.setText(stack.toString());
 			} 
 
-//			if (logEntry.getSession() != null) {
-//				String session = logEntry.getSession().getSessionData();
-//				if (session != null) {
-//					sessionDataText.setText(session);
-//				}
-//			}
 
 		updateButtons();
 	}
@@ -392,115 +314,6 @@ public class EventDetailsDialog extends TrayDialog {
 		}
 	*/}
 
-	private void findNextSelectedChild(Object originalEntry) {/*
-		if (isChild(parentEntry)) {
-			// we're at the end of the child list; find next parent
-			// to select.  If the parent is a child at the end of the child
-			// list, find its next parent entry to select, etc.
-
-			entry = parentEntry;
-			setEntryChildren((AbstractEntry) parentEntry.getParent(parentEntry));
-			parentEntry = (AbstractEntry) parentEntry.getParent(parentEntry);
-			resetChildIndex();
-			isLastChild = childIndex == entryChildren.length - 1;
-			if (isLastChild) {
-				findNextSelectedChild(originalEntry);
-			} else {
-				nextPressed();
-			}
-		} else if (parentEntry instanceof LogEntry) {
-			entry = parentEntry;
-			setEntryChildren();
-			resetChildIndex();
-			isLastChild = childIndex == entryChildren.length - 1;
-			if (isLastChild) {
-				if (isChild(entry)) {
-					findNextSelectedChild(originalEntry);
-				} else {
-					entry = originalEntry;
-					isAtEndOfLog = true;
-					nextPressed();
-				}
-			} else {
-				nextPressed();
-			}
-		} else {
-			entry = originalEntry;
-			isAtEndOfLog = true;
-			nextPressed();
-		}
-	*/}
-
-//	private boolean nextChildExists(AbstractEntry originalEntry, AbstractEntry originalParent, AbstractEntry[] originalEntries) {
-//		if (isChild(parentEntry)) {
-//			// we're at the end of the child list; find next parent
-//			// to select.  If the parent is a child at the end of the child
-//			// list, find its next parent entry to select, etc.
-//
-//			entry = parentEntry;
-//			parentEntry = (AbstractEntry) entry.getParent(entry);
-//			setEntryChildren(parentEntry);
-//			resetChildIndex();
-//			if (childIndex == entryChildren.length - 1) {
-//				return nextChildExists(originalEntry, originalParent, originalEntries);
-//			}
-//			entry = originalEntry;
-//			parentEntry = originalParent;
-//			entryChildren = originalEntries;
-//			resetChildIndex();
-//			return true;
-//		} else if (parentEntry instanceof LogEntry) {
-//			entry = parentEntry;
-//			setEntryChildren();
-//			childIndex = -1;
-//			resetChildIndex();
-//			if ((childIndex != -1) && (childIndex < entryChildren.length - 1)) {
-//				entry = originalEntry;
-//				parentEntry = originalParent;
-//				entryChildren = originalEntries;
-//				resetChildIndex();
-//				return true;
-//			}
-//		}
-//		entry = originalEntry;
-//		parentEntry = originalParent;
-//		entryChildren = originalEntries;
-//		resetChildIndex();
-//		return false;
-//
-//	}
-
-	/**
-	 * Sets entry children (Prev-Next navigable) to top-level elements
-	 */
-//	private void setEntryChildren() {
-//		AbstractEntry[] children = getElements();
-//
-//		if (comparator != null)
-//			Arrays.sort(children, comparator);
-//		entryChildren = new AbstractEntry[children.length];
-//
-//		System.arraycopy(children, 0, entryChildren, 0, children.length);
-//	}
-
-	/**
-	 * Sets entry children (Prev-Next navigable) to children of given entry
-	 */
-//	private void setEntryChildren(AbstractEntry entry) {
-//		Object[] children = entry.getChildren(entry);
-//
-//		if (comparator != null)
-//			Arrays.sort(children, comparator);
-//
-//		List result = new ArrayList();
-//		for (Object element : children) {
-//			if (element instanceof AbstractEntry) {
-//				result.add(element);
-//			}
-//		}
-//
-//		entryChildren = (AbstractEntry[]) result.toArray(new AbstractEntry[result.size()]);
-//	}
 
 	public SashForm getSashForm() {
 		return sashForm;
@@ -518,7 +331,7 @@ public class EventDetailsDialog extends TrayDialog {
 		createSashForm(container);
 		createDetailsSection(getSashForm());
 		createStackSection(getSashForm());
-		createSessionSection(getSashForm());
+//		createSessionSection(getSashForm());
 
 		updateProperties();
 		Dialog.applyDialogFont(container);
@@ -552,74 +365,24 @@ public class EventDetailsDialog extends TrayDialog {
 		((GridData) container.getLayoutData()).verticalAlignment = SWT.CENTER;
 		((GridData) container.getLayoutData()).verticalSpan= 2;
 		
-		
-//gd = new GridData(GridData.VERTICAL_ALIGN_CENTER);
 		backButton = createButton(container, IDialogConstants.BACK_ID, "", false); //$NON-NLS-1$
 		GridData gd = new GridData(GridData.FILL_HORIZONTAL);
 		backButton.setLayoutData(gd);
 		backButton.setToolTipText("");
 		backButton.setImage(SharedImages.getImage(SharedImages.DESC_PREV_EVENT));
-		backButton.getAccessible().addAccessibleListener(new AccessibleAdapter() {
-			@Override
-			public void getName(AccessibleEvent e) {
-				e.result = "Previous";
-			}
-		});
 
 		copyButton = createButton(container, COPY_ID, "", false); //$NON-NLS-1$
 		gd = new GridData();
 		copyButton.setLayoutData(gd);
 		copyButton.setImage(PlatformUI.getWorkbench().getSharedImages().getImage(ISharedImages.IMG_TOOL_COPY));
 		copyButton.setToolTipText("Copy");
-		copyButton.getAccessible().addAccessibleListener(new AccessibleAdapter() {
-			@Override
-			public void getName(AccessibleEvent e) {
-				e.result = "Copy";//Messages.EventDetailsDialog_copy;
-			}
-		});
 
 		nextButton = createButton(container, IDialogConstants.NEXT_ID, "", false); //$NON-NLS-1$
 		gd = new GridData();
 		nextButton.setLayoutData(gd);
 		nextButton.setToolTipText("Next");
 		nextButton.setImage(SharedImages.getImage(SharedImages.DESC_NEXT_EVENT));
-		nextButton.getAccessible().addAccessibleListener(new AccessibleAdapter() {
-			@Override
-			public void getName(AccessibleEvent e) {
-				e.result = "Next";//Messages.EventDetailsDialog_next;
-			}
-		});
 		
-//		Button button = new Button(container, SWT.NONE);
-//		button.setToolTipText("Filter");
-//		button.setImage(SharedImages.getImage(SharedImages.DESC_FILTER));
-//		gd = new GridData();
-//		gd.horizontalAlignment = SWT.RIGHT;
-//		button.setLayoutData(gd);
-//		button.addSelectionListener(new SelectionAdapter() {
-//			@Override
-//			public void widgetSelected(SelectionEvent e) {
-//				FilterDialog dialog = new FilterDialog(getShell(), memento);
-//				dialog.create();
-//				dialog.getShell().setText(Messages.EventDetailsDialog_FilterDialog);
-//				if (dialog.open() == Window.OK) {
-//					// update filters and currently displayed stack trace
-//					stackFilterPatterns = getFilters();
-//					logView.reloadLog();
-//					initialize();
-//				}
-//				updateProperties();
-//			}
-//		});
-//		button.getAccessible().addAccessibleListener(new AccessibleAdapter() {
-//			@Override
-//			public void getName(AccessibleEvent e) {
-//				e.result = Messages.EventDetailsDialog_FilterDialog;
-//			}
-//		});
-
-		// set numColumns at the end, after all createButton() calls, which change this value
-		//layout.numColumns = 2;
 	}
 
 	@Override
@@ -737,46 +500,6 @@ public class EventDetailsDialog extends TrayDialog {
 		sessionDataText.setEditable(false);
 	}
 
-	/**
-	 * Loads filters from preferences.
-	 * @return filters from preferences or empty array
-	 *
-	 * @since 3.4
-	 */
-
-
-	/**
-	 * Filters stack trace.
-	 * Every stack trace line is compared against all patterns.
-	 * If line contains any of pattern strings, it's excluded from output.
-	 *
-	 * @returns filtered stack trace
-	 * @since 3.4
-	 */
-	private String filterStack(String stack) {
-		if (stackFilterPatterns.length == 0) {
-			return stack;
-		}
-
-		StringTokenizer st = new StringTokenizer(stack, "\n"); //$NON-NLS-1$
-		StringBuffer result = new StringBuffer();
-		while (st.hasMoreTokens()) {
-			String stackElement = st.nextToken();
-
-			boolean filtered = false;
-			int i = 0;
-			while ((!filtered) && (i < stackFilterPatterns.length)) {
-				filtered = stackElement.indexOf(stackFilterPatterns[i]) >= 0;
-				i++;
-			}
-
-			if (!filtered) {
-				result.append(stackElement).append("\n"); //$NON-NLS-1$
-			}
-		}
-
-		return result.toString();
-	}
 
 
 }
