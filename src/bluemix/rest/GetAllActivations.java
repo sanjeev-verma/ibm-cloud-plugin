@@ -7,6 +7,12 @@ import org.apache.http.HttpHeaders;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.util.EntityUtils;
+import org.eclipse.jface.action.IAction;
+import org.eclipse.jface.viewers.ISelection;
+import org.eclipse.jface.viewers.IStructuredSelection;
+import org.eclipse.ui.IViewPart;
+import org.eclipse.ui.IWorkbenchPage;
+import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
 
 import com.google.gson.Gson;
@@ -16,12 +22,44 @@ import com.google.gson.JsonParser;
 
 import bluemix.rest.model.Action;
 import bluemix.rest.model.Activation;
+import bluemix.ui.ActivityView;
+import bluemix.ui.model.UIAction;
 
 public class GetAllActivations extends BaseAction {
 
+	
+	private UIAction uiAction;
+	
+	public void selectionChanged(IAction action, ISelection selection) {
+		
+		Object obj= ((IStructuredSelection)selection).getFirstElement();
+		if(obj instanceof UIAction){
+			uiAction = (UIAction)obj;
+			action.setEnabled(true);
+			return;
+		}
+		action.setEnabled(false);
+	}
+	
+	@Override
+	public void run(IAction arg0) {
+		try {
+		List<Activation> activations =fetchAllActivations();
+		IWorkbenchPage page = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage();
+			ActivityView viewPart = (ActivityView) page.showView(ActivityView.ID);
+			viewPart.update(activations);
+		} catch (PartInitException e) {
+			e.printStackTrace();
+		}
+	}
+	
 	public List<Activation> fetchAllActivations(){
 		String baseUrl = getBaseURL();
 		String url = baseUrl+"namespaces/_/activations?limit=50&skip=0&docs=true";
+		if(uiAction != null){
+			url = url+"&name="+uiAction.getAction().getName();
+		}
+		
 		HttpGet request = new HttpGet(url);
 		System.out.println(url);
 		updateAuthHeader(request);
@@ -59,4 +97,7 @@ public class GetAllActivations extends BaseAction {
 			}
 		
 	}
+	
+	
+	
 }

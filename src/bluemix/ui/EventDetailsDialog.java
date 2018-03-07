@@ -42,6 +42,7 @@ import com.google.gson.JsonParser;
 
 import bluemix.rest.model.Action;
 import bluemix.rest.model.Activation;
+import bluemix.rest.model.Annotation;
 
 /**
  * Displays details about Log Entry.
@@ -76,7 +77,7 @@ public class EventDetailsDialog extends TrayDialog {
 	private Label dateLabel;
 	private Text msgText;
 	private Text stackTraceText;
-	private Text sessionDataText;
+	private Text inputDataText;
 	private Clipboard clipboard;
 	private Button copyButton;
 	private Button backButton;
@@ -269,37 +270,56 @@ public class EventDetailsDialog extends TrayDialog {
 			severityImageLabel.setImage(labelProvider.getColumnImage(entry, 0));
 			severityLabel.setText(entry.getResponse().getStatus());
 			activationLabel.setText(entry.getActivationId());
-			String txt = labelProvider.getColumnText(entry, 3);
+			
 			Gson gson = new GsonBuilder().setPrettyPrinting().create();
-			
 			JsonParser parser = new JsonParser();
-		    
 			
-			if(txt!= null){
-				try{
-				JsonObject json = parser.parse(txt).getAsJsonObject();
-				msgText.setText(gson.toJson(json));
-				}catch(Exception ex){
-					msgText.setText(txt);
-				}
-			}
-			 //$NON-NLS-1$
-			StringBuilder stack = new StringBuilder();
-			for (String log : entry.getLogs()) {
-				try{
-				JsonObject json = parser.parse(log).getAsJsonObject();
-				stack.append("\n"+gson.toJson(json));
-				}catch(Exception ex){
-					stack.append("\n"+log);
-				}
-			}
-
-			if (stack != null) {
-				stackTraceText.setText(stack.toString());
-			} 
+			updateInputSection(gson, parser);
+			updateResultSection(gson, parser);
+			updateLogsSection(gson, parser); 
 
 
 		updateButtons();
+	}
+
+	private void updateInputSection(Gson gson, JsonParser parser) {
+		List<Annotation> result = entry.getAction().getAnnotations();
+		if(result!= null){
+			try{
+			this.inputDataText.setText(gson.toJson(result));
+			}catch(Exception ex){
+				inputDataText.setText("");
+			}
+		}
+		
+	}
+
+	private void updateLogsSection(Gson gson, JsonParser parser) {
+		StringBuilder stack = new StringBuilder();
+		for (String log : entry.getLogs()) {
+			try{
+			JsonObject json = parser.parse(log).getAsJsonObject();
+			stack.append("\n"+gson.toJson(json));
+			}catch(Exception ex){
+				stack.append("\n"+log);
+			}
+		}
+
+		if (stack != null) {
+			stackTraceText.setText(stack.toString());
+		}
+	}
+
+	private void updateResultSection(Gson gson, JsonParser parser) {
+		String result = labelProvider.getColumnText(entry, 3);
+		if(result!= null){
+			try{
+			JsonObject json = parser.parse(result).getAsJsonObject();
+			msgText.setText(gson.toJson(json));
+			}catch(Exception ex){
+				msgText.setText(result);
+			}
+		}
 	}
 
 	private void updateButtons() {/*
@@ -330,8 +350,9 @@ public class EventDetailsDialog extends TrayDialog {
 
 		createSashForm(container);
 		createDetailsSection(getSashForm());
+		createSessionSection(getSashForm());
 		createStackSection(getSashForm());
-//		createSessionSection(getSashForm());
+//		
 
 		updateProperties();
 		Dialog.applyDialogFont(container);
@@ -490,14 +511,14 @@ public class EventDetailsDialog extends TrayDialog {
 		container.setLayoutData(gd);
 
 		Label label = new Label(container, SWT.NONE);
-		label.setText("Session");
+		label.setText("Input");
 		gd = new GridData(GridData.FILL_HORIZONTAL);
 		label.setLayoutData(gd);
-		sessionDataText = new Text(container, SWT.BORDER | SWT.V_SCROLL | SWT.H_SCROLL);
+		inputDataText = new Text(container, SWT.BORDER | SWT.V_SCROLL | SWT.H_SCROLL);
 		gd = new GridData(GridData.FILL_BOTH | GridData.GRAB_HORIZONTAL);
 		gd.grabExcessHorizontalSpace = true;
-		sessionDataText.setLayoutData(gd);
-		sessionDataText.setEditable(false);
+		inputDataText.setLayoutData(gd);
+		inputDataText.setEditable(false);
 	}
 
 

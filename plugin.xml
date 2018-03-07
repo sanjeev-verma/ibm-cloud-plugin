@@ -73,7 +73,15 @@
                label="Delete"
                menubarPath="additions">
          </action>
+         <action
+               class="bluemix.rest.GetAllActivations"
+               enablesFor="?"
+               id="bluemix.activationAction"
+               label="Get Activations"
+               menubarPath="additions">
+         </action>
          </objectContribution>
+        
    </extension>
    
    <extension

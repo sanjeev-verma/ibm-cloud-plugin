@@ -2,11 +2,9 @@ package bluemix.ui;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
 
-import org.eclipse.core.runtime.IAdaptable;
 import org.eclipse.jface.action.IMenuListener;
 import org.eclipse.jface.action.IMenuManager;
 import org.eclipse.jface.action.IToolBarManager;
@@ -17,7 +15,6 @@ import org.eclipse.jface.viewers.DoubleClickEvent;
 import org.eclipse.jface.viewers.IDoubleClickListener;
 import org.eclipse.jface.viewers.ILabelProviderListener;
 import org.eclipse.jface.viewers.ISelection;
-import org.eclipse.jface.viewers.ISelectionChangedListener;
 import org.eclipse.jface.viewers.ISelectionProvider;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.viewers.ITableLabelProvider;
@@ -28,7 +25,6 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Menu;
-import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Tree;
 import org.eclipse.swt.widgets.TreeColumn;
 import org.eclipse.ui.IActionBars;
@@ -67,7 +63,7 @@ public class ActivityView extends ViewPart{
 	    	  if(obj instanceof Action ){
 	    		  Action action = (Action)obj;
 	    		  if(index ==0)
-	    			  return  action.getName() ;
+	    			  return  action.getName() +" (v:"+action.getVersion()+") ";
 	    		  
 	    	  }else if(obj instanceof Activation){
 	    		  Activation act = (Activation)obj;
@@ -81,7 +77,6 @@ public class ActivityView extends ViewPart{
 	    			  
 	    			  return act.getResponse().getResult().getMessage(); 
 	    		  }else if(index ==4 && act.getLogs() != null){
-	    			  System.out.println("Logs"+act.getLogs());
 	    			  String logStr=""; 
 	    			  for (String log : act.getLogs()) {
 						logStr=log+"\n"+logStr;
@@ -180,9 +175,13 @@ public class ActivityView extends ViewPart{
 	   }
 	   
 	   
-	   public void refreshView(){
-		   activations = new GetAllActivations().fetchAllActivations();
+	   private void refreshView(){
+		   update(new GetAllActivations().fetchAllActivations());
+	   }
+	   public void update(List<Activation> activations){
+		   this.activations=activations;
 		   currentNs="_";
+		   m_treeViewer.getTree().removeAll();
 		   m_treeViewer.setInput(currentNs);
 	   }
 	 
