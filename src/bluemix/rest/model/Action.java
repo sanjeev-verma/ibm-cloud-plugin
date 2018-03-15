@@ -73,6 +73,15 @@ public class Action {
 	public void setActivations(List<Activation> activations) {
 		this.activations = activations;
 	}
+	
+	public String getExtension(){
+		if(exec.getKind().contains("nodejs"))
+			return ".js";
+		else{
+			return ".java";
+		}
+		
+	}
 	@Override
 	public int hashCode() {
 		final int prime = 31;

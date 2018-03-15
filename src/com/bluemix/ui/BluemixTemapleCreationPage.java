@@ -2,7 +2,9 @@ package com.bluemix.ui;
 
 import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IResource;
+import org.eclipse.core.resources.IWorkspaceRoot;
 import org.eclipse.core.resources.ResourcesPlugin;
+import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.jface.dialogs.IDialogPage;
 import org.eclipse.jface.viewers.ISelection;
@@ -46,7 +48,7 @@ public class BluemixTemapleCreationPage extends WizardPage {
 	private String selectedNS;
 
 	
-	public static String[] templateType = new String[] {"NodeJS","Python","Java","xyz"};
+	public static String[] templateType = new String[] {"NodeJS","Python","Java"};
 
 	/**
 	 * Constructor for SampleNewWizardPage.
@@ -241,7 +243,31 @@ public class BluemixTemapleCreationPage extends WizardPage {
 			updateStatus("Selection not supported. This version of Bluemix eclipse plugin only support NodeJS.");
 			return;
 		}
+		if(!validatePage()){
+			// do nothing
+			return;
+		}
 		updateStatus(null);
+	}
+	
+	private boolean validatePage() {
+		String containerName = containerText.getText();
+		String fileName = this.fileText.getText();
+		IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
+		IResource resource = root.findMember(new Path(containerName+IPath.SEPARATOR+fileName));
+		if (resource != null && resource.exists() ) {
+			updateStatus("Action already exists!");
+			return false;
+		}else{
+			updateStatus(null);
+			return true;
+		}		
+	}
+
+	@Override
+	public boolean isPageComplete() {
+		
+		return super.isPageComplete();
 	}
 
 	private void updateStatus(String message) {

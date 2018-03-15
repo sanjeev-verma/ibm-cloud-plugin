@@ -66,6 +66,7 @@
         </objectContribution>
         <objectContribution objectClass="bluemix.ui.model.UIAction"
             id="bluemix.UIAction">
+            
 		<action
                class="bluemix.rest.DeleteAction"
                enablesFor="?"
@@ -80,6 +81,14 @@
                label="Get Activations"
                menubarPath="additions">
          </action>
+        <action
+               class="bluemix.rest.FetchAction"
+               enablesFor="?"
+               id="bluemix.fetchAction"
+               label="Get Action Source"
+               menubarPath="additions">
+         </action>
+         
          </objectContribution>
         
    </extension>
@@ -141,28 +150,54 @@
       <contexts
             file="contexts.xml">
       </contexts>
+      <contexts
+            file="contexts.xml">
+      </contexts>
    </extension>
-   <extension
-         point="org.eclipse.ui.perspectiveExtensions">
-      <perspectiveExtension
-            targetID="org.eclipse.jdt.ui.JavaPerspective">
+   
+   <extension point="org.eclipse.ui.perspectiveExtensions">
+  <perspectiveExtension 
+	targetID="bluemix.IBMCloud.perspective">
+	<view
+               id="org.eclipse.ui.navigator.ProjectExplorer"
+               relationship="stack"
+               relative="left"/>
          <view
                id="bluemix.ui.ActivityView"
-               ratio="0.5"
-               relationship="right"
-               relative="org.eclipse.ui.views.ProblemView">
-         </view>
-      </perspectiveExtension>
-      <perspectiveExtension
-            targetID="org.eclipse.jdt.ui.JavaPerspective">
+               relationship="stack"
+               relative="bottom"/>
          <view
-               id="bluemix.views.SampleView"
-               ratio="0.5"
-               relationship="right"
-               relative="org.eclipse.ui.views.ProblemView">
-         </view>
-      </perspectiveExtension>
+               id="bluemix.ui.ServerView"
+               relationship="stack"
+               relative="xyz"/>
+         <view
+               id="org.eclipse.ui.console.ConsoleView"
+               relationship="stack"
+               relative="right"/>
+         <view
+               id="org.eclipse.ui.views.ContentOutline"
+               relationship="stack"
+               relative="right"/>      
+  </perspectiveExtension>
+  <perspectiveExtension
+        targetID="org.eclipse.jdt.ui.JavaPerspective">
+     <view
+           id="bluemix.views.SampleView"
+           ratio="0.5"
+           relationship="right"
+           relative="org.eclipse.ui.views.ProblemView">
+     </view>
+  </perspectiveExtension>
+  </extension> 
+  <extension
+         point="org.eclipse.ui.perspectives">
+      <perspective
+            class="bluemix.ui.PerspectiveFactory1"
+            id="bluemix.IBMCloud.perspective"
+            name="IBM Cloud Function "/>
    </extension>
+
+   
    
 
 </plugin>

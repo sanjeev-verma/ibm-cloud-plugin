@@ -3,8 +3,6 @@ package bluemix.core;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 
 public class BluemixActivator extends AbstractUIPlugin {
-
-
 	
 	
 	private static BluemixActivator instance;
