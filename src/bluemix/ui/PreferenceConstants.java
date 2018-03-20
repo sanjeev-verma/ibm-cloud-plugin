@@ -7,6 +7,8 @@ public class PreferenceConstants {
 
 	public static final String BLUEMIX_SERVER = "_BLUEMIX_SERVER";
 	
+	public static final String BLUEMIX_ACCESS_CODE = "_BLUEMIX_SERVER_API_ACCESS_CODE";
+	
 	public static final String BLUEMIX_USER = "USER_NAME";
 	
 	public static final String BLUEMIX_PASSWORD = "BLUEMIX_PAASWORD";
@@ -20,5 +22,6 @@ public class PreferenceConstants {
 	public static final String P_CHOICE = "choicePreference";
 
 	public static final String P_STRING = "stringPreference";
+	
 	
 }

@@ -81,6 +81,13 @@
                label="Get Activations"
                menubarPath="additions">
          </action>
+         <action
+               class="bluemix.rest.CreateGetApi"
+               enablesFor="?"
+               id="bluemix.createGetApi"
+               label="Create API"
+               menubarPath="additions">
+         </action>
         <action
                class="bluemix.rest.FetchAction"
                enablesFor="?"

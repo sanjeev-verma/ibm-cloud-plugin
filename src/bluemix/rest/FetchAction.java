@@ -22,7 +22,6 @@ import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.dialogs.ContainerSelectionDialog;
-import org.eclipse.ui.internal.registry.FileEditorMapping;
 import org.eclipse.ui.part.FileEditorInput;
 
 import com.google.gson.Gson;
@@ -57,23 +56,7 @@ public class FetchAction extends BaseAction {
 					return;
 			}
 			try{
-			//DELETE]	https://openwhisk.eu-gb.bluemix.net/api/v1/namespaces/_/actions/new_file
-			String url = getBaseURL()+"namespaces/_/actions/"+name;
-			System.out.println("URL  "+url);
-			HttpGet request = new HttpGet(url);
-
-			
-			byte[] encodedAuth = Base64.getEncoder().encode(uiAction.getParent().getApiKey().getBytes(Charset.forName("ISO-8859-1")));
-			String authHeader = "Basic " + new String(encodedAuth);
-			request.setHeader(HttpHeaders.AUTHORIZATION, authHeader);
-			
-			request.setHeader(HttpHeaders.CONTENT_TYPE, "application/json");
-			
-			HttpResponse response =httpCall(request);
-
-			String json = EntityUtils.toString(response.getEntity());
-			Gson gson = new Gson();
-			action = gson.fromJson(json, Action.class);
+			action = performGet(uiAction);
 			Exec exec= action.getExec();
 			String code = exec.getCode();
 			
@@ -101,6 +84,25 @@ public class FetchAction extends BaseAction {
 			}
 		
 	
+	}
+
+	public Action performGet(UIAction uiAction) throws IOException {
+		String name = uiAction.getAction().getName();
+		Action action;
+		String url = getBaseURL()+"namespaces/_/actions/"+name;
+		System.out.println("URL  "+url);
+		HttpGet request = new HttpGet(url);
+
+		
+		byte[] encodedAuth = Base64.getEncoder().encode(uiAction.getParent().getApiKey().getBytes(Charset.forName("ISO-8859-1")));
+		String authHeader = "Basic " + new String(encodedAuth);
+		request.setHeader(HttpHeaders.AUTHORIZATION, authHeader);
+		request.setHeader(HttpHeaders.CONTENT_TYPE, "application/json");
+		HttpResponse response =httpCall(request);
+		String json = EntityUtils.toString(response.getEntity());
+		Gson gson = new Gson();
+		return gson.fromJson(json, Action.class);
+		
 	}
 	
 	public void selectionChanged(IAction action, ISelection selection) {
