@@ -1,5 +1,6 @@
 package bluemix.ui;
 
+import org.apache.commons.lang3.StringUtils;
 import org.eclipse.jface.dialogs.TitleAreaDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.GridData;
@@ -21,6 +22,8 @@ public class ApiInputDialog extends TitleAreaDialog {
 	private Text apiURLText;
     
 	private Api api;
+	private Combo responseTypeCmb;
+	private String responseType;
     
     public ApiInputDialog(Shell parentShell) {
         super(parentShell);
@@ -81,6 +84,16 @@ public class ApiInputDialog extends TitleAreaDialog {
         apiMethodCmb = new Combo(container, SWT.READ_ONLY);
         apiMethodCmb.setLayoutData(dataLastName);
         apiMethodCmb.add("GET", 0);
+        apiMethodCmb.select(0);
+        
+        lbtLastName = new Label(container, SWT.NONE);
+        lbtLastName.setText("Response Type:");
+        responseTypeCmb = new Combo(container, SWT.READ_ONLY);
+        responseTypeCmb.setLayoutData(dataLastName);
+        responseTypeCmb.add("json", 0);
+        responseTypeCmb.add("http", 1);
+        responseTypeCmb.select(0);
+        
 //        apiMethod.add("POST", 1);
 //        apiMethod.add("PUT", 1);
 //        apiMethod.add("DELETE", 1);
@@ -100,11 +113,26 @@ public class ApiInputDialog extends TitleAreaDialog {
     	String apiMethod = apiMethodCmb.getItem(apiMethodCmb.getSelectionIndex());
 		api.getApidoc().put(Api.KYE_API_NAME, txtFirstName.getText());
 		api.getApidoc().put(Api.KYE_NAMESPACE, "_");
-		api.getApidoc().put(Api.KYE_GATEWAYBASEPATH, apiURLText.getText());
+		api.getApidoc().put(Api.KYE_GATEWAYBASEPATH, getDefaultUrl(apiURLText.getText(),"api") );
 		api.getApidoc().put(Api.KYE_GATEWAYMETHOD, apiMethod);
-		api.getApidoc().put(Api.KYE_GATEWAYPATH, baseURLText.getText());
+		api.getApidoc().put(Api.KYE_GATEWAYPATH, getDefaultUrl(baseURLText.getText(),"base"));
 		api.getApidoc().put(Api.KYE_ID, "API:_:"+apiURLText.getText());
+		this.responseType = responseTypeCmb.getItem(responseTypeCmb.getSelectionIndex());
     }
+    
+    private String getDefaultUrl(String value,String defaultVal){
+    	if(StringUtils.isEmpty(value))
+    		return "/"+defaultVal;
+    	if(value.startsWith("/"))
+    		return value;
+    	else
+    		return "/"+value;
+    }
+    
+    
+    public String getResponseType() {
+		return responseType;
+	}
 
     @Override
     protected void okPressed() {

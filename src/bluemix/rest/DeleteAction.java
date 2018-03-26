@@ -42,11 +42,9 @@ public class DeleteAction extends BaseAction {
 			
 			request.setHeader(HttpHeaders.CONTENT_TYPE, "application/json");
 			
-			httpCall(request);
-			MessageBox dialog =new MessageBox(shell,SWT.ICON_INFORMATION| SWT.OK);
-			dialog.setText("Success");
-			dialog.setMessage("Deleted Action remotely");
-			dialog.open();
+			HttpResponse response = httpCall(request);
+			handleSuccess(response);
+			
 			
 			UINamespace ns = uiAction.getParent();
 			ns.getActions().remove(uiAction);

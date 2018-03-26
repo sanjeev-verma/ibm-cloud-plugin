@@ -2,20 +2,26 @@ package bluemix.rest;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
 
-import org.apache.commons.httpclient.NameValuePair;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.HttpHeaders;
+import org.apache.http.HttpResponse;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.StringEntity;
+import org.apache.http.util.EntityUtils;
 import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.window.Window;
-import org.eclipse.swt.SWT;
-import org.eclipse.swt.widgets.MessageBox;
+import org.eclipse.ui.console.MessageConsole;
+import org.eclipse.ui.console.MessageConsoleStream;
 
 import com.google.gson.Gson;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 
 import bluemix.rest.model.AccessToken;
 import bluemix.rest.model.Api;
@@ -48,21 +54,23 @@ public void selectionChanged(IAction action, ISelection selection) {
 					return;
 				}
 				Api api = input.getValue();
+				String rspnsType= input.getResponseType();
 				ApiAction apiAction = new ApiAction();
-				api.setAction(apiAction);
+				
 				String apiUrl = getBaseURL()+"web/_/default/"+name+".http";
 				apiAction.setBackendUrl(apiUrl);
 				String auth = getPreferenceStore().getString(PreferenceConstants.BLUEMIX_AUTH_KEY);
-				apiAction.setBackendMethod(api.getApidoc().get(Api.KYE_GATEWAYMETHOD));
+				apiAction.setBackendMethod((String)api.getApidoc().get(Api.KYE_GATEWAYMETHOD));
 				apiAction.setAuthkey(auth);
 				apiAction.setName(name);
 				apiAction.setNamespace("_");
+				api.setAction(apiAction);
 				FetchAction fetchAction = new FetchAction();
 				fetchAction.performGet(uiAction);
 				Map<String,String> params = new HashMap<>();
 				AccessToken accessToken = getAccessToken();
-				params.put("accessToken", accessToken.getAccess_token());
-				params.put("requestType","http" );
+				params.put("accesstoken", accessToken.getAccess_token());
+				params.put("responsetype",rspnsType );
 				
 				
 				if(StringUtils.isEmpty(auth)){
@@ -72,31 +80,29 @@ public void selectionChanged(IAction action, ISelection selection) {
 				params.put("spaceguid",spaceguid);
 				String dataUrl = getDataString(params);
 				String url =getBaseURL()+"web/whisk.system/apimgmt/createApi.http?"+dataUrl;
-				System.out.println("URL:"+url);
 				HttpPost request = new HttpPost(url);
 				updateAuthHeader(request);
 				request.setHeader(HttpHeaders.CONTENT_TYPE, "application/json");
 				
 				Gson gson = new Gson();
 				String body=gson.toJson(api);
-				System.out.println(body);
 				System.out.println("Requestbody: "+body);
 				if (StringUtils.isNotBlank(body)) {
 			        request.setEntity(new StringEntity(body, "utf-8"));
 			    }
 				
 				try{
-					httpCall(request);
+					HttpResponse response = httpCall(request);
+					handleSuccess(response);
+					
+					
 					}catch (Exception e) {
 						e.printStackTrace();
 						openError(shell, e);
 						return;
 					}
 					
-					 MessageBox dialog =new MessageBox(shell,SWT.ICON_INFORMATION| SWT.OK);
-					 dialog.setText("Success");
-					 dialog.setMessage("Operation successfull!");
-					 dialog.open();
+				 
 				
 			} catch (Exception e) {
 				e.printStackTrace();
@@ -104,6 +110,22 @@ public void selectionChanged(IAction action, ISelection selection) {
 				return;
 			}
 			
+		}
+	@Override
+		protected void handleSuccess(HttpResponse response) throws Exception {
+		String json = EntityUtils.toString(response.getEntity());
+		
+		
+		JsonElement jelement = new JsonParser().parse(json);
+	    JsonObject  jobject = jelement.getAsJsonObject();
+	    String base  = jobject.get("gwApiUrl").getAsString();
+	     Set<Entry<String,JsonElement>> pairs= jobject.get("apidoc").getAsJsonObject().get("paths").getAsJsonObject().entrySet();
+	     String segement = pairs.iterator().next().getKey();
+	     
+		MessageConsole myConsole = findConsole("IBM Functions excecution");
+		MessageConsoleStream out = myConsole.newMessageStream();
+		out.println("API Created with following URL!");
+		out.println(base+segement);
 		}
 	
 }

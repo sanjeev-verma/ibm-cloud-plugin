@@ -92,15 +92,6 @@ public class InvokeAction extends BaseAction {
 				});
 				return ctrl;
 			}
-//			@Override
-//			protected Label getErrorMessageLabel() {
-//				Label lbl =  super.getErrorMessageLabel();
-//				
-//				Display display = Display.getCurrent();
-//				Color red = display.getSystemColor(SWT.COLOR_DARK_RED);
-//				lbl.setForeground(red);
-//				return lbl;
-//			}
 			@Override
 			protected int getInputTextStyle() {
 			  return SWT.MULTI | SWT.BORDER;
@@ -117,9 +108,6 @@ public class InvokeAction extends BaseAction {
 		String fullName = file.getName();
 		String name = fullName.substring(0, fullName.indexOf('.'));
 		String value = dlg.getValue();
-//		JsonObject jsn = new JsonObject();
-//		jsn.addProperty("key", value);
-//		name="test-weather";
 		String url = getBaseURL()+"namespaces/_/actions/"+name+"?blocking="+isBlockin+"&result="+result;
 		System.out.println("URL  "+url);
 		HttpPost request = new HttpPost(url);
@@ -131,15 +119,8 @@ public class InvokeAction extends BaseAction {
 		
 			HttpResponse response = httpCall(request);
 			String json = EntityUtils.toString(response.getEntity());
-			System.out.println("Output "+json);
-			MessageBox dialog =new MessageBox(shell,SWT.ICON_INFORMATION | SWT.OK);
-			dialog.setText("Success");
-			dialog.setMessage("Response JSON:"+ json);
-			dialog.open();
 			MessageConsole myConsole = findConsole("IBM Functions excecution");
 			MessageConsoleStream out = myConsole.newMessageStream();
-//			out.print("Function : "+name);
-//			out.println("   Parameters : "+value);
 			out.println(json);
 			 
 			   
@@ -158,18 +139,7 @@ public class InvokeAction extends BaseAction {
 		this.result = result;
 	}
 	
-	   private MessageConsole findConsole(String name) {
-		      ConsolePlugin plugin = ConsolePlugin.getDefault();
-		      IConsoleManager conMan = plugin.getConsoleManager();
-		      IConsole[] existing = conMan.getConsoles();
-		      for (int i = 0; i < existing.length; i++)
-		         if (name.equals(existing[i].getName()))
-		            return (MessageConsole) existing[i];
-		      //no console found, so create a new one
-		      MessageConsole myConsole = new MessageConsole(name, null);
-		      conMan.addConsoles(new IConsole[]{myConsole});
-		      return myConsole;
-		   }
+	   
 
 
 }

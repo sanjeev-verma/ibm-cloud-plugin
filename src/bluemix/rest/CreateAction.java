@@ -2,27 +2,24 @@ package bluemix.rest;
 
 import java.io.IOException;
 
-import org.apache.commons.httpclient.HttpStatus;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.HttpHeaders;
 import org.apache.http.HttpResponse;
-import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpPut;
-import org.apache.http.client.methods.HttpRequestBase;
 import org.apache.http.entity.StringEntity;
-import org.apache.http.impl.client.HttpClientBuilder;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jface.action.IAction;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.MessageBox;
+import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.IActionDelegate;
 
 import com.google.gson.Gson;
 
 import bluemix.rest.model.Action;
+import bluemix.rest.model.Annotation;
 import bluemix.rest.model.Exec;
-import bluemix.ui.PreferenceConstants;
 
 public class CreateAction extends BaseAction {
 
@@ -43,6 +40,10 @@ public class CreateAction extends BaseAction {
 		
 		super.run(action);
 		
+		
+		
+		
+		
 		String fullName = file.getName();
 		String name = fullName.substring(0, fullName.indexOf('.'));
 		Action act = new Action();
@@ -59,6 +60,10 @@ public class CreateAction extends BaseAction {
 		} catch (IOException | CoreException e) {
 			e.printStackTrace();
 		} 
+		
+		
+		updateWebActionAnnotations(act);
+		
 		String url =getBaseURL()+"namespaces/"+act.getNamespace()+"/actions/"+act.getName()+"?overwrite="+isOverwrite();
 		System.out.println("URL:"+url);
 		HttpPut request = new HttpPut(url);
@@ -74,21 +79,44 @@ public class CreateAction extends BaseAction {
 	    }
 
 		try{
-		httpCall(request);
+		HttpResponse response = httpCall(request);
+		handleSuccess(response);
 		}catch (Exception e) {
 			openError(shell, e);
 			return;
 		}
-		
-		 MessageBox dialog =new MessageBox(shell,SWT.ICON_INFORMATION| SWT.OK);
-		 dialog.setText("Success");
-		 dialog.setMessage("Operation successfull!");
-		 dialog.open();
 
 	}
 
 
 
+
+
+	private void updateWebActionAnnotations(Action act) {
+		
+		MessageBox messageBox = new MessageBox(new Shell(), SWT.ICON_QUESTION | SWT.YES | SWT.NO);
+        messageBox.setMessage("Do you want make this action as web-Action so that it can be exposed as Web API?");
+        messageBox.setText("Web API Action");
+        int response = messageBox.open();
+        if (response == SWT.NO)
+          return;
+		
+       Annotation a1 = new Annotation();
+       a1.setKey("web-export");
+       a1.setValue(true);
+       act.getAnnotations().add(a1);
+       
+       Annotation a2 = new Annotation();
+       a2.setKey("raw-http");
+       a2.setValue(false);
+       act.getAnnotations().add(a2);
+       
+       Annotation a3 = new Annotation();
+       a3.setKey("final");
+       a3.setValue(false);
+       act.getAnnotations().add(a3);
+       
+	}
 
 
 	protected String isOverwrite() {

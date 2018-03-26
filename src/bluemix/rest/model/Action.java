@@ -10,19 +10,19 @@ public class Action {
 	private String name;
 	private Exec exec;
 	private String version;
-	private List<Annotation> annotations;
+	private List<Annotation> annotations = new ArrayList<>();
 	private long updated;
 	private Limits limits;
-	private boolean publish;
+//	private boolean publish;
 	
 	private List<Activation> activations = new ArrayList<>();
 	
-	public boolean isPublish() {
-		return publish;
-	}
-	public void setPublish(boolean publish) {
-		this.publish = publish;
-	}
+//	public boolean isPublish() {
+//		return publish;
+//	}
+//	public void setPublish(boolean publish) {
+//		this.publish = publish;
+//	}
 	public Limits getLimits() {
 		return limits;
 	}

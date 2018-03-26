@@ -19,7 +19,9 @@ Require-Bundle: org.eclipse.core.resources,
  org.eclipse.equinox.p2.console;bundle-version="1.0.500",
  org.eclipse.ui.console;bundle-version="3.6.200",
  org.eclipse.jface.text,
- org.eclipse.ui.editors
+ org.eclipse.ui.editors,
+ org.slf4j.api;bundle-version="1.7.2"
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Bundle-Activator: bluemix.core.BluemixActivator
 Import-Package: org.eclipse.ui.internal.views.log
+Bundle-ClassPath: .

@@ -7,7 +7,7 @@ import com.google.gson.Gson;
 
 public class Api{
 
-	private Map<String, String> apidoc = new HashMap<String, String>();
+	private Map<String, Object> apidoc = new HashMap<String, Object>();
 	
 	
 	public static final String  KYE_NAMESPACE= "namespace";
@@ -19,17 +19,17 @@ public class Api{
 	public static final String  KYE_API ="API";
 	public static final String  KYE_ACTION ="action";
 	
-	public Map<String, String> getApidoc() {
+	public Map<String, Object> getApidoc() {
 		return apidoc;
 	}
-	public void setApidoc(Map<String, String> apiDoc) {
+	public void setApidoc(Map<String, Object> apiDoc) {
 		this.apidoc = apiDoc;
 	}
 	
 	
 	public void setAction(ApiAction action) {
 		Gson g = new Gson();
-		apidoc.put(KYE_ACTION, g.toJson(action));
+		apidoc.put(KYE_ACTION, action);
 	}
 	
 	

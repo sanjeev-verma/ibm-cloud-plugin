@@ -49,7 +49,7 @@ public class FetchAction extends BaseAction {
 			IPath path = (IPath)dlg.getResult()[0];
 			String name = uiAction.getAction().getName();
 			Action action = uiAction.getAction();
-			IPath folderLocation = path.append(""+IPath.SEPARATOR).append(action.getNamespace());
+			IPath folderLocation = path.append(""+IPath.SEPARATOR).append("["+action.getNamespace()+"]");
 			IFile file = root.getFile(folderLocation.append(""+IPath.SEPARATOR).append(name+action.getExtension()));
 			if(file.exists()){
 				if(!MessageDialog.openConfirm(shell, "Override Action", "The action source is already exist at given location. Are you sure you want to override the action?"))

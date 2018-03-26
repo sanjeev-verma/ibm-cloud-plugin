@@ -1,5 +1,10 @@
 package bluemix.rest;
 
+import java.io.IOException;
+
+import org.apache.http.HttpResponse;
+import org.apache.http.ParseException;
+import org.apache.http.util.EntityUtils;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.jface.action.IAction;
@@ -10,6 +15,11 @@ import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.IObjectActionDelegate;
 import org.eclipse.ui.IWorkbenchPart;
+import org.eclipse.ui.console.ConsolePlugin;
+import org.eclipse.ui.console.IConsole;
+import org.eclipse.ui.console.IConsoleManager;
+import org.eclipse.ui.console.MessageConsole;
+import org.eclipse.ui.console.MessageConsoleStream;
 
 import bluemix.core.BluemixActivator;
 import bluemix.ui.PreferenceConstants;
@@ -65,6 +75,27 @@ public abstract class BaseAction  extends RestBase implements IObjectActionDeleg
 
 	}
 	
+	protected void handleSuccess(HttpResponse response) throws Exception {
+		
+		String json = EntityUtils.toString(response.getEntity());
+		MessageConsole myConsole = findConsole("IBM Functions excecution");
+		MessageConsoleStream out = myConsole.newMessageStream();
+		out.println("Operation Successfull!");
+		out.println(json);
+		
+	}
 	
+	protected MessageConsole findConsole(String name) {
+	      ConsolePlugin plugin = ConsolePlugin.getDefault();
+	      IConsoleManager conMan = plugin.getConsoleManager();
+	      IConsole[] existing = conMan.getConsoles();
+	      for (int i = 0; i < existing.length; i++)
+	         if (name.equals(existing[i].getName()))
+	            return (MessageConsole) existing[i];
+	      //no console found, so create a new one
+	      MessageConsole myConsole = new MessageConsole(name, null);
+	      conMan.addConsoles(new IConsole[]{myConsole});
+	      return myConsole;
+	   }
 
 }
