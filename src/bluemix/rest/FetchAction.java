@@ -88,12 +88,9 @@ public class FetchAction extends BaseAction {
 
 	public Action performGet(UIAction uiAction) throws IOException {
 		String name = uiAction.getAction().getName();
-		Action action;
 		String url = getBaseURL()+"namespaces/_/actions/"+name;
 		System.out.println("URL  "+url);
 		HttpGet request = new HttpGet(url);
-
-		
 		byte[] encodedAuth = Base64.getEncoder().encode(uiAction.getParent().getApiKey().getBytes(Charset.forName("ISO-8859-1")));
 		String authHeader = "Basic " + new String(encodedAuth);
 		request.setHeader(HttpHeaders.AUTHORIZATION, authHeader);

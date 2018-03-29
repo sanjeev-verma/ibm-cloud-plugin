@@ -40,12 +40,7 @@ public class CreateAction extends BaseAction {
 		
 		super.run(action);
 		
-		
-		
-		
-		
-		String fullName = file.getName();
-		String name = fullName.substring(0, fullName.indexOf('.'));
+		String name = getActionName();
 		Action act = new Action();
 		act.setName(name);
 		
@@ -55,7 +50,10 @@ public class CreateAction extends BaseAction {
 		try {
 			code = IOUtils.toString(file.getContents());
 			exec.setCode(code);
+			if("py".equalsIgnoreCase(file.getFileExtension()))
+				exec.setKind(Exec.KIND_PYTHON);
 			act.setExec(exec);
+		
 		
 		} catch (IOException | CoreException e) {
 			e.printStackTrace();
@@ -86,6 +84,13 @@ public class CreateAction extends BaseAction {
 			return;
 		}
 
+	}
+
+
+	protected String getActionName() {
+		String fullName = file.getName();
+		String name = fullName.substring(0, fullName.indexOf('.'));
+		return name;
 	}
 
 

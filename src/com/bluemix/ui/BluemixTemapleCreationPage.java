@@ -1,5 +1,6 @@
 package com.bluemix.ui;
 
+import org.apache.commons.lang3.StringUtils;
 import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IWorkspaceRoot;
@@ -120,8 +121,6 @@ public class BluemixTemapleCreationPage extends WizardPage {
 		nsCombo.select(0);
 		selectedNS = currentNS;
 		
-		// TODO need to add selection litener in order to support multiple namespaces.
-		
 		label = new Label(container, SWT.NULL);
 		label.setText("&File name:");
 
@@ -145,6 +144,7 @@ public class BluemixTemapleCreationPage extends WizardPage {
 		for (String lbl : templateType) {
 		Button btn = new Button(radioContainer, SWT.RADIO);
 		btn.setText(lbl);
+		
 		btn.addSelectionListener(new SelectionListener() {
 			 @Override
 			public void widgetSelected(SelectionEvent e) {
@@ -158,6 +158,10 @@ public class BluemixTemapleCreationPage extends WizardPage {
 			}
 			 
 		});
+		
+		if(lbl == templateType[0])
+			btn.setSelection(true);
+			this.selectedTemplate=templateType[0];
 		}
 	}
 
@@ -182,6 +186,7 @@ public class BluemixTemapleCreationPage extends WizardPage {
 			}
 		}
 		fileText.setText("new_file.js");
+		dialogChanged();
 	}
 
 	/**
@@ -231,18 +236,20 @@ public class BluemixTemapleCreationPage extends WizardPage {
 			updateStatus("File name must be valid");
 			return;
 		}
+		
+		if (StringUtils.isEmpty(getValidSelectedFileExt())) {
+			updateStatus("Selection not supported. This version of Bluemix eclipse plugin only support NodeJS/Python");
+			return;
+		}
 		int dotLoc = fileName.lastIndexOf('.');
 		if (dotLoc != -1) {
 			String ext = fileName.substring(dotLoc + 1);
-			if (ext.equalsIgnoreCase("js") == false) {
-				updateStatus("File extension must be \"js\"");
+			if (!getValidSelectedFileExt().equalsIgnoreCase("."+ext)) {
+				updateStatus("File extension must be "+getValidSelectedFileExt());
 				return;
 			}
 		}
-		if (!this.templateType[0].equals(selectedTemplate)) {
-			updateStatus("Selection not supported. This version of Bluemix eclipse plugin only support NodeJS.");
-			return;
-		}
+		
 		if(!validatePage()){
 			// do nothing
 			return;
@@ -263,6 +270,8 @@ public class BluemixTemapleCreationPage extends WizardPage {
 			return true;
 		}		
 	}
+	
+	
 
 	@Override
 	public boolean isPageComplete() {
@@ -289,5 +298,15 @@ public class BluemixTemapleCreationPage extends WizardPage {
 	
 	public String getSelectedNS() {
 		return selectedNS;
+	}
+	
+	private String getValidSelectedFileExt(){
+		if(selectedTemplate == templateType[0])
+			return ".js";
+		
+		else if(selectedTemplate == templateType[1])
+			return ".py";
+		else 
+			return "";
 	}
 }

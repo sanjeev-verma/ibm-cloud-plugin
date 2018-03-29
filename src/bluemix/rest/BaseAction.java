@@ -34,7 +34,8 @@ public abstract class BaseAction  extends RestBase implements IObjectActionDeleg
 		IResource res = (IResource) ((IStructuredSelection)selection).getFirstElement();
 		if(res instanceof IFile){
 			file = (IFile)res;
-			action.setEnabled("JS".equals(file.getFileExtension().toUpperCase()));
+			String ext = file.getFileExtension().toUpperCase();
+			action.setEnabled("JS".equals(ext) || "PY".equals(ext));
 			return;
 		}
 	action.setEnabled(false);

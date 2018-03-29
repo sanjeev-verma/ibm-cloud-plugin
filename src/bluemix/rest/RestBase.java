@@ -101,10 +101,8 @@ public abstract class RestBase{
 		params.add(new BasicNameValuePair("password", password));
 		
 		HttpPost request = new HttpPost(url);
-//		byte[] encodedAuth = Base64.getEncoder().encode("Y2Y6".getBytes(Charset.forName("ISO-8859-1")));
 		String authHeader = "Basic Y2Y6";
 		request.setHeader(HttpHeaders.AUTHORIZATION, authHeader);
-//		updateAuthHeader(request);
 		request.setHeader(HttpHeaders.CONTENT_TYPE,"application/x-www-form-urlencoded"); 
 		request.setEntity(new UrlEncodedFormEntity(params));
 		HttpResponse response= httpCall(request);

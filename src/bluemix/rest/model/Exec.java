@@ -1,7 +1,10 @@
 package bluemix.rest.model;
 
 public class Exec {
-	private String kind="nodejs:default";
+	public static final String KIND_NODEJS="nodejs:default";
+	public static final String KIND_PYTHON="python:default";
+	private String kind=KIND_NODEJS;
+	
 	private String code;
 	public String getKind() {
 		return kind;

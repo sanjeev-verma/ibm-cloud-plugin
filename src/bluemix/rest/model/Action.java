@@ -78,7 +78,7 @@ public class Action {
 		if(exec.getKind().contains("nodejs"))
 			return ".js";
 		else{
-			return ".java";
+			return ".py";
 		}
 		
 	}
